@@ -52,6 +52,26 @@ OutputIterator exclusive_scan(InputIterator first,
                               const T init,
                               BinaryFunction binary_op);
 
+template <typename InputIterator,
+          typename OutputIterator,
+          typename BinaryFunction>
+OutputIterator inclusive_scan(InputIterator first,
+                              InputIterator last,
+                              OutputIterator output,
+                              BinaryFunction binary_op,
+                              cudaStream_t stream);
+
+template <typename InputIterator,
+          typename OutputIterator,
+          typename T,
+          typename BinaryFunction>
+OutputIterator exclusive_scan(InputIterator first,
+                              InputIterator last,
+                              OutputIterator output,
+                              const T init,
+                              BinaryFunction binary_op,
+                              cudaStream_t stream);
+
 } // end namespace safe_scan
 } // end namespace detail
 } // end namespace cuda

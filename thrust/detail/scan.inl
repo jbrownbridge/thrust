@@ -57,6 +57,22 @@ template<typename InputIterator,
 }
 
 template<typename InputIterator,
+         typename OutputIterator,
+         typename AssociativeOperator>
+  OutputIterator inclusive_scan(InputIterator first,
+                                InputIterator last,
+                                OutputIterator result,
+                                AssociativeOperator binary_op,
+                                cudaStream_t stream)
+{
+    // dispatch on space
+    return thrust::detail::dispatch::inclusive_scan(first, last, result, binary_op, stream,
+            typename thrust::iterator_space<InputIterator>::type(),
+            typename thrust::iterator_space<OutputIterator>::type());
+}
+
+
+template<typename InputIterator,
          typename OutputIterator>
   OutputIterator exclusive_scan(InputIterator first,
                                 InputIterator last,
@@ -94,6 +110,23 @@ template<typename InputIterator,
 {
     // dispatch on space
     return thrust::detail::dispatch::exclusive_scan(first, last, result, init, binary_op,
+            typename thrust::iterator_space<InputIterator>::type(),
+            typename thrust::iterator_space<OutputIterator>::type());
+}
+
+template<typename InputIterator,
+         typename OutputIterator,
+         typename T,
+         typename AssociativeOperator>
+  OutputIterator exclusive_scan(InputIterator first,
+                                InputIterator last,
+                                OutputIterator result,
+                                const T init,
+                                AssociativeOperator binary_op,
+                                cudaStream_t stream)
+{
+    // dispatch on space
+    return thrust::detail::dispatch::exclusive_scan(first, last, result, init, binary_op, stream,
             typename thrust::iterator_space<InputIterator>::type(),
             typename thrust::iterator_space<OutputIterator>::type());
 }

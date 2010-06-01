@@ -48,6 +48,26 @@ template<typename InputIterator,
                                 T init,
                                 AssociativeOperator binary_op);
 
+template<typename InputIterator,
+         typename OutputIterator,
+         typename AssociativeOperator>
+  OutputIterator inclusive_scan(InputIterator first,
+                                InputIterator last,
+                                OutputIterator result,
+                                AssociativeOperator binary_op,
+                                cudaStream_t stream);
+
+template<typename InputIterator,
+         typename OutputIterator,
+         typename T,
+         typename AssociativeOperator>
+  OutputIterator exclusive_scan(InputIterator first,
+                                InputIterator last,
+                                OutputIterator result,
+                                T init,
+                                AssociativeOperator binary_op,
+                                cudaStream_t stream);
+
 } // end namespace cuda
 } // end namespace device
 } // end namespace detail

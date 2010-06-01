@@ -361,7 +361,8 @@ template <typename InputIterator,
 OutputIterator inclusive_scan(InputIterator first,
                               InputIterator last,
                               OutputIterator output,
-                              BinaryFunction binary_op)
+                              BinaryFunction binary_op,
+                              cudaStream_t stream)
 {
     if (first == last)
         return output;
@@ -392,7 +393,7 @@ OutputIterator inclusive_scan(InputIterator first,
     thrust::detail::raw_cuda_device_buffer<OutputType> block_results(num_blocks + 1);
     
     // first level scan of interval (one interval per block)
-    scan_intervals<CTA_SIZE,K> <<<num_blocks, CTA_SIZE>>>
+    scan_intervals<CTA_SIZE,K> <<<num_blocks, CTA_SIZE, 0, stream>>>
         (first,
          N,
          interval_size,
@@ -401,7 +402,7 @@ OutputIterator inclusive_scan(InputIterator first,
          binary_op);
     
     // second level inclusive scan of per-block results
-    scan_intervals<CTA_SIZE,K> <<<         1, CTA_SIZE>>>
+    scan_intervals<CTA_SIZE,K> <<<         1, CTA_SIZE, 0, stream>>>
         (thrust::raw_pointer_cast(&block_results[0]),
          num_blocks,
          interval_size,
@@ -410,7 +411,7 @@ OutputIterator inclusive_scan(InputIterator first,
          binary_op);
     
     // update intervals with result of second level scan
-    inclusive_update<256> <<<num_blocks, 256>>>
+    inclusive_update<256> <<<num_blocks, 256, 0, stream>>>
         (output,
          N,
          interval_size,
@@ -423,13 +424,27 @@ OutputIterator inclusive_scan(InputIterator first,
 
 template <typename InputIterator,
           typename OutputIterator,
+          typename BinaryFunction>
+OutputIterator inclusive_scan(InputIterator first,
+                              InputIterator last,
+                              OutputIterator output,
+                              BinaryFunction binary_op)
+{
+    return inclusive_scan<InputIterator, OutputIterator, BinaryFunction>
+        (first, last, output, binary_op, (cudaStream_t)0);
+}
+
+
+template <typename InputIterator,
+          typename OutputIterator,
           typename T,
           typename BinaryFunction>
 OutputIterator exclusive_scan(InputIterator first,
                               InputIterator last,
                               OutputIterator output,
                               const T init,
-                              BinaryFunction binary_op)
+                              BinaryFunction binary_op,
+                              cudaStream_t stream)
 {
     if (first == last)
         return output;
@@ -460,7 +475,7 @@ OutputIterator exclusive_scan(InputIterator first,
     thrust::detail::raw_cuda_device_buffer<OutputType> block_results(num_blocks + 1);
                 
     // first level scan of interval (one interval per block)
-    scan_intervals<CTA_SIZE,K> <<<num_blocks, CTA_SIZE>>>
+    scan_intervals<CTA_SIZE,K> <<<num_blocks, CTA_SIZE, 0, stream>>>
         (first,
          N,
          interval_size,
@@ -469,7 +484,7 @@ OutputIterator exclusive_scan(InputIterator first,
          binary_op);
     
     // second level inclusive scan of per-block results
-    scan_intervals<CTA_SIZE,K> <<<         1, CTA_SIZE>>>
+    scan_intervals<CTA_SIZE,K> <<<         1, CTA_SIZE, 0, stream>>>
         (thrust::raw_pointer_cast(&block_results[0]),
          num_blocks,
          interval_size,
@@ -478,7 +493,7 @@ OutputIterator exclusive_scan(InputIterator first,
          binary_op);
 
     // update intervals with result of second level scan
-    exclusive_update<256> <<<num_blocks, 256>>>
+    exclusive_update<256> <<<num_blocks, 256, 0, stream>>>
         (output,
          N,
          interval_size,
@@ -487,6 +502,21 @@ OutputIterator exclusive_scan(InputIterator first,
          binary_op);
     
     return output + N;
+}
+
+
+template <typename InputIterator,
+          typename OutputIterator,
+          typename T,
+          typename BinaryFunction>
+OutputIterator exclusive_scan(InputIterator first,
+                              InputIterator last,
+                              OutputIterator output,
+                              const T init,
+                              BinaryFunction binary_op)
+{
+    return exclusive_scan<InputIterator, OutputIterator, T, BinaryFunction>
+        (first, last, output, init, binary_op, (cudaStream_t)0);
 }
 
 } // end namespace fast_scan

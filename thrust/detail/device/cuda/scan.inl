@@ -40,6 +40,19 @@ template<typename InputIterator,
                                 OutputIterator result,
                                 AssociativeOperator binary_op)
 {
+    return thrust::detail::device::cuda::inclusive_scan
+        (first, last, result, binary_op, (cudaStream_t)0);
+} 
+
+template<typename InputIterator,
+         typename OutputIterator,
+         typename AssociativeOperator>
+  OutputIterator inclusive_scan(InputIterator first,
+                                InputIterator last,
+                                OutputIterator result,
+                                AssociativeOperator binary_op,
+                                cudaStream_t stream)
+{
     // we're attempting to launch a kernel, assert we're compiling with nvcc
     // ========================================================================
     // X Note to the user: If you've found this line due to a compiler error, X
@@ -57,7 +70,7 @@ template<typename InputIterator,
     (void) use_fast_scan;
 
     return thrust::detail::device::cuda::dispatch::inclusive_scan
-        (first, last, result, binary_op,
+        (first, last, result, binary_op, stream,
          thrust::detail::integral_constant<bool, use_fast_scan>());
 }
 
@@ -70,6 +83,21 @@ template<typename InputIterator,
                                 OutputIterator result,
                                 T init,
                                 AssociativeOperator binary_op)
+{
+    return thrust::detail::device::cuda::exclusive_scan
+        (first, last, result, init, binary_op, (cudaStream_t)0);
+}
+
+template<typename InputIterator,
+         typename OutputIterator,
+         typename T,
+         typename AssociativeOperator>
+  OutputIterator exclusive_scan(InputIterator first,
+                                InputIterator last,
+                                OutputIterator result,
+                                T init,
+                                AssociativeOperator binary_op,
+                                cudaStream_t stream)
 {
     // we're attempting to launch a kernel, assert we're compiling with nvcc
     // ========================================================================
@@ -88,7 +116,7 @@ template<typename InputIterator,
     (void) use_fast_scan;
 
     return thrust::detail::device::cuda::dispatch::exclusive_scan
-        (first, last, result, init, binary_op,
+        (first, last, result, init, binary_op, stream,
          thrust::detail::integral_constant<bool, use_fast_scan>());
 }
 

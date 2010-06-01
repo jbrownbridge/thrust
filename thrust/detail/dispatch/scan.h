@@ -69,6 +69,39 @@ template<typename InputIterator,
 }
 
 
+template<typename InputIterator,
+         typename OutputIterator,
+         typename AssociativeOperator>
+  OutputIterator inclusive_scan(InputIterator first,
+                                InputIterator last,
+                                OutputIterator result,
+                                AssociativeOperator binary_op,
+                                cudaStream_t stream,
+                                thrust::host_space_tag,
+                                thrust::host_space_tag)
+{
+    (void)stream;
+    return thrust::detail::host::inclusive_scan(first, last, result, binary_op);
+}
+
+
+template<typename InputIterator,
+         typename OutputIterator,
+         typename T,
+         typename AssociativeOperator>
+  OutputIterator exclusive_scan(InputIterator first,
+                                InputIterator last,
+                                OutputIterator result,
+                                T init,
+                                AssociativeOperator binary_op,
+                                cudaStream_t stream,
+                                thrust::host_space_tag,
+                                thrust::host_space_tag)
+{
+    (void)stream;
+    return thrust::detail::host::exclusive_scan(first, last, result, init, binary_op);
+}
+
 //////////////////
 // Device Paths //
 //////////////////
@@ -100,6 +133,37 @@ template<typename InputIterator,
                                 thrust::device_space_tag)
 {
     return thrust::detail::device::exclusive_scan(first, last, result, init, binary_op);
+}
+
+template<typename InputIterator,
+         typename OutputIterator,
+         typename AssociativeOperator>
+  OutputIterator inclusive_scan(InputIterator first,
+                                InputIterator last,
+                                OutputIterator result,
+                                AssociativeOperator binary_op,
+                                cudaStream_t stream,
+                                thrust::device_space_tag,
+                                thrust::device_space_tag)
+{
+    return thrust::detail::device::inclusive_scan(first, last, result, binary_op, stream);
+}
+
+
+template<typename InputIterator,
+         typename OutputIterator,
+         typename T,
+         typename AssociativeOperator>
+  OutputIterator exclusive_scan(InputIterator first,
+                                InputIterator last,
+                                OutputIterator result,
+                                T init,
+                                AssociativeOperator binary_op,
+                                cudaStream_t stream,
+                                thrust::device_space_tag,
+                                thrust::device_space_tag)
+{
+    return thrust::detail::device::exclusive_scan(first, last, result, init, binary_op, stream);
 }
 
 } // end namespace dispatch

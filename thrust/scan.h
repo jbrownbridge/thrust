@@ -132,6 +132,59 @@ template<typename InputIterator,
                                 OutputIterator result,
                                 AssociativeOperator binary_op);
 
+
+/*! \p inclusive_scan computes an inclusive prefix sum operation. The
+ *  term 'inclusive' means that each result includes the corresponding
+ *  input operand in the partial sum.  When the input and output sequences 
+ *  are the same, the scan is performed in-place.
+ *    
+ *  \p inclusive_scan is similar to \c std::partial_sum in the STL.  The primary
+ *  difference between the two functions is that \c std::partial_sum guarantees
+ *  a serial summation order, while \p inclusive_scan requires associativity of 
+ *  the binary operation to parallelize the prefix sum.
+ *
+ *  \param first The beginning of the input sequence.
+ *  \param last The end of the input sequence.
+ *  \param result The beginning of the output sequence.
+ *  \param binary_op The associatve operator used to 'sum' values.
+ *  \param stream The cuda stream to use.
+ *  \return The end of the output sequence.
+ *
+ *  \tparam InputIterator is a model of <a href="http://www.sgi.com/tech/stl/InputIterator.html">Input Iterator</a>
+ *                        and \c InputIterator's \c value_type is convertible to
+ *                        \c OutputIterator's \c value_type.
+ *  \tparam OutputIterator is a model of <a href="http://www.sgi.com/tech/stl/OutputIterator.html">Output Iterator</a>
+ *                         and \c OutputIterator's \c value_type is convertible to
+ *                         both \c AssociativeOperator's \c first_argument_type and
+ *                         \c second_argument_type.
+ *  \tparam AssociativeOperator is a model of <a href="http://www.sgi.com/tech/stl/BinaryFunction.html">Binary Function</a>
+ *                              and \c AssociativeOperator's \c result_type is
+ *                              convertible to \c OutputIterator's \c value_type.
+ *
+ *  The following code snippet demonstrates how to use \p inclusive_scan
+ *
+ *  \code
+ *  int data[10] = {-5, 0, 2, -3, 2, 4, 0, -1, 2, 8};
+ * 
+ *  thrust::maximum<int> binary_op;
+ *
+ *  thrust::inclusive_scan(data, data + 10, data, 1, binary_op); // in-place scan
+ *
+ *  // data is now {1, 1, 2, 2, 2, 4, 4, 4, 4, 8}
+ *  \endcode
+ *
+ *  \see http://www.sgi.com/tech/stl/partial_sum.html
+ */
+template<typename InputIterator,
+         typename OutputIterator,
+         typename AssociativeOperator>
+  OutputIterator inclusive_scan(InputIterator first,
+                                InputIterator last,
+                                OutputIterator result,
+                                AssociativeOperator binary_op,
+                                cudaStream_t stream);
+
+
 /*! \p exclusive_scan computes an exclusive prefix sum operation. The
  *  term 'exclusive' means that each result does not include the 
  *  corresponding input operand in the partial sum.  More precisely,
@@ -275,6 +328,64 @@ template<typename InputIterator,
                                 OutputIterator result,
                                 const T init,
                                 AssociativeOperator binary_op);
+
+
+/*! \p exclusive_scan computes an exclusive prefix sum operation. The
+ *  term 'exclusive' means that each result does not include the 
+ *  corresponding input operand in the partial sum.  More precisely,
+ *  \p init is assigned to <tt>*result</tt> and the value
+ *  <tt>binary_op(init, *first)</tt> is assigned to <tt>*(result + 1)</tt>,
+ *  and so on. This version of the function requires both and associative 
+ *  operator and an initial value \p init.  When the input and output
+ *  sequences are the same, the scan is performed in-place.
+ *    
+ *  \param first The beginning of the input sequence.
+ *  \param last The end of the input sequence.
+ *  \param result The beginning of the output sequence.
+ *  \param init The initial value.
+ *  \param binary_op The associatve operator used to 'sum' values.
+ *  \param stream The cuda stream to use.
+ *  \return The end of the output sequence.
+ *
+ *  \tparam InputIterator is a model of <a href="http://www.sgi.com/tech/stl/InputIterator.html">Input Iterator</a>
+ *                        and \c InputIterator's \c value_type is convertible to
+ *                        \c OutputIterator's \c value_type.
+ *  \tparam OutputIterator is a model of <a href="http://www.sgi.com/tech/stl/OutputIterator.html">Output Iterator</a>
+ *                         and \c OutputIterator's \c value_type is convertible to
+ *                         both \c AssociativeOperator's \c first_argument_type and
+ *                         \c second_argument_type.
+ *  \tparam T is convertible to \c OutputIterator's \c value_type.
+ *  \tparam AssociativeOperator is a model of <a href="http://www.sgi.com/tech/stl/BinaryFunction.html">Binary Function</a>
+ *                              and \c AssociativeOperator's \c result_type is
+ *                              convertible to \c OutputIterator's \c value_type.
+ *
+ *  The following code snippet demonstrates how to use \p exclusive_scan
+ *
+ *  \code
+ *  #include <thrust/scan.h>
+ *  #include <thrust/functional.h>
+ *  
+ *  int data[10] = {-5, 0, 2, -3, 2, 4, 0, -1, 2, 8};
+ * 
+ *  thrust::maximum<int> binary_op;
+ *
+ *  thrust::exclusive_scan(data, data + 10, data, 1, binary_op); // in-place scan
+ *
+ *  // data is now {1, 1, 1, 2, 2, 2, 4, 4, 4, 4 }
+ *  \endcode
+ *
+ *  \see http://www.sgi.com/tech/stl/partial_sum.html
+ */
+template<typename InputIterator,
+         typename OutputIterator,
+         typename T,
+         typename AssociativeOperator>
+  OutputIterator exclusive_scan(InputIterator first,
+                                InputIterator last,
+                                OutputIterator result,
+                                const T init,
+                                AssociativeOperator binary_op,
+                                cudaStream_t stream);
 
 /*! \} // end prefix sums
  */
