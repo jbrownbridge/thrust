@@ -352,7 +352,7 @@ OutputIterator inclusive_scan(InputIterator first,
     {
         const unsigned int block_size_pass3 = thrust::experimental::arch::max_blocksize_with_highest_occupancy(inclusive_update<OutputIterator,OutputType,BinaryFunction>, 0);
 
-        inclusive_update<<<num_blocks, block_size_pass3, stream>>>
+        inclusive_update<<<num_blocks, block_size_pass3, 0, stream>>>
             (output,
              N,
              interval_size,
