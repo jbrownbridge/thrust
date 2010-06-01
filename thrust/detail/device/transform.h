@@ -67,6 +67,19 @@ template<typename InputIterator1,
 
 template<typename InputIterator1,
          typename InputIterator2,
+         typename OutputIterator,
+         typename BinaryFunction>
+  OutputIterator transform(InputIterator1 first1, InputIterator1 last1,
+                           InputIterator2 first2,
+                           OutputIterator result,
+                           BinaryFunction binary_op, cudaStream_t stream)
+{
+    return thrust::detail::device::generic::transform(first1, last1, first2, result, binary_op, stream);
+}
+
+
+template<typename InputIterator1,
+         typename InputIterator2,
          typename ForwardIterator,
          typename UnaryFunction,
          typename Predicate>

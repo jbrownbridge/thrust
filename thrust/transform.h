@@ -94,7 +94,7 @@ template<typename InputIterator,
  *  \param last The end of the input sequence.
  *  \param result The beginning of the output sequence.
  *  \param op The tranformation operation.
- *  \param stream The cuda stream to use
+ *  \param stream The cuda stream to use.
  *  \return The end of the output sequence.
  *
  *  \tparam InputIterator is a model of <a href="http://www.sgi.com/tech/stl/InputIterator.html">Input Iterator</a>
@@ -182,6 +182,61 @@ template<typename InputIterator1,
                            OutputIterator result,
                            BinaryFunction op);
 
+
+/*! This version of \p transform applies a binary function to each pair
+ *  of elements from two input sequences and stores the result in the
+ *  corresponding position in an output sequence.  Specifically, for
+ *  each iterator <tt>i</tt> in the range [\p first1, \p last1) and 
+ *  <tt>j = first + (i - first1)</tt> in the range [\p first2, \p last2)
+ *  the operation <tt>op(*i,*j)</tt> is performed and the result is 
+ *  assigned to <tt>*o</tt>,  where <tt>o</tt> is the corresponding
+ *  output iterator in the range [\p result, \p result + (\p last - \p first) ).
+ *  The input and output sequences may coincide, resulting in an 
+ *  in-place transformation.
+ *    
+ *  \param first1 The beginning of the first input sequence.
+ *  \param last1 The end of the first input sequence.
+ *  \param first2 The beginning of the second input sequence.
+ *  \param result The beginning of the output sequence.
+ *  \param op The tranformation operation.
+ *  \param stream The cuda stream to use.
+ *  \return The end of the output sequence.
+ *
+ *  \tparam InputIterator1 is a model of <a href="http://www.sgi.com/tech/stl/InputIterator.html">Input Iterator</a>
+ *                        and \c InputIterator1's \c value_type is convertible to \c BinaryFunction's \c first_argument_type.
+ *  \tparam InputIterator2 is a model of <a href="http://www.sgi.com/tech/stl/InputIterator.html">Input Iterator</a>
+ *                        and \c InputIterator2's \c value_type is convertible to \c BinaryFunction's \c second_argument_type.
+ *  \tparam OutputIterator is a model of <a href="http://www.sgi.com/tech/stl/OutputIterator.html">Output Iterator</a>.
+ *  \tparam BinaryFunction is a model of <a href="http://www.sgi.com/tech/stl/BinaryFunction.html">Binary Function</a>
+ *                              and \c BinaryFunction's \c result_type is convertible to \c OutputIterator's \c value_type.
+ *
+ *  The following code snippet demonstrates how to use \p transform
+ *
+ *  \code
+ *  #include <thrust/transform.h>
+ *  #include <thrust/functional.h>
+ *  
+ *  int input1[6] = {-5,  0,  2,  3,  2,  4};
+ *  int input2[6] = { 3,  6, -2,  1,  2,  3};
+ *  int output[6];
+ * 
+ *  thrust::plus<int> op;
+ *
+ *  thrust::transform(input1, input1 + 6, input2, output, op);
+ *
+ *  // output is now {-2,  6,  0,  4,  4,  7};
+ *  \endcode
+ *
+ *  \see http://www.sgi.com/tech/stl/transform.html
+ */
+template<typename InputIterator1,
+         typename InputIterator2,
+         typename OutputIterator,
+         typename BinaryFunction>
+  OutputIterator transform(InputIterator1 first1, InputIterator1 last1,
+                           InputIterator2 first2,
+                           OutputIterator result,
+                           BinaryFunction op, cudaStream_t stream);
 
 /*! This version of \p transform_if conditionally applies a unary function
  *  to each element of an input sequence and stores the result in the corresponding 

@@ -55,6 +55,15 @@ template<typename InputIterator1,
                            OutputIterator result,
                            BinaryFunction binary_op);
 
+template<typename InputIterator1,
+         typename InputIterator2,
+         typename OutputIterator,
+         typename BinaryFunction>
+  OutputIterator transform(InputIterator1 first1, InputIterator1 last1,
+                           InputIterator2 first2,
+                           OutputIterator result,
+                           BinaryFunction binary_op, cudaStream_t stream);
+
 
 template<typename InputIterator1,
          typename InputIterator2,

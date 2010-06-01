@@ -168,6 +168,23 @@ template<typename InputIterator1,
   return result + (last1 - first1); // return the end of the output sequence
 } // end transform()
 
+template<typename InputIterator1,
+         typename InputIterator2,
+         typename OutputIterator,
+         typename BinaryFunction>
+  OutputIterator transform(InputIterator1 first1, InputIterator1 last1,
+                           InputIterator2 first2,
+                           OutputIterator result,
+                           BinaryFunction binary_op, cudaStream_t stream)
+{
+  detail::binary_transform_functor<BinaryFunction> func(binary_op);
+  
+  thrust::detail::device::for_each(thrust::make_zip_iterator(thrust::make_tuple(first1, first2, result)),
+                                   thrust::make_zip_iterator(thrust::make_tuple(first1, first2, result)) + thrust::distance(first1, last1),
+                                   func, stream);
+  
+  return result + (last1 - first1); // return the end of the output sequence
+} // end transform()
 
 template<typename InputIterator1,
          typename InputIterator2,

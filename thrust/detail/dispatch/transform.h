@@ -150,6 +150,20 @@ template<typename InputIterator1,
     return thrust::detail::device::transform(first1, last1, first2, result, binary_op);
 } // end transform()
 
+template<typename InputIterator1,
+         typename InputIterator2,
+         typename OutputIterator,
+         typename BinaryFunction>
+  OutputIterator transform(InputIterator1 first1, InputIterator1 last1,
+                           InputIterator2 first2,
+                           OutputIterator result,
+                           BinaryFunction binary_op, cudaStream_t stream,
+                           thrust::device_space_tag,
+                           thrust::device_space_tag,
+                           thrust::device_space_tag)
+{
+    return thrust::detail::device::transform(first1, last1, first2, result, binary_op, stream);
+} // end transform()
 
 template<typename InputIterator1,
          typename InputIterator2,
