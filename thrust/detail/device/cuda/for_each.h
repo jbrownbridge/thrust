@@ -42,6 +42,13 @@ void for_each(InputIterator first,
               UnaryFunction f);
 
 
+template<typename InputIterator,
+         typename UnaryFunction>
+void for_each(InputIterator first,
+              InputIterator last,
+              UnaryFunction f,
+              cudaStream_t stream);
+
 } // end namespace cuda
 
 } // end namespace device

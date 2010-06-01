@@ -38,6 +38,14 @@ template<typename InputIterator,
                            UnaryFunction unary_op);
 
 
+template<typename InputIterator,
+         typename OutputIterator,
+         typename UnaryFunction>
+  OutputIterator transform(InputIterator first, InputIterator last,
+                           OutputIterator result,
+                           UnaryFunction unary_op, cudaStream_t stream);
+
+
 template<typename InputIterator1,
          typename InputIterator2,
          typename OutputIterator,

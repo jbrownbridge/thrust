@@ -69,6 +69,16 @@ template<typename NullaryFunction,
 
     detail::launch_closure_by_value<<<num_blocks,block_size>>>(f);
   }
+
+  template<typename Size>
+  static void launch(NullaryFunction f, Size n, cudaStream_t stream)
+  {
+    const size_t block_size = thrust::experimental::arch::max_blocksize_with_highest_occupancy(detail::launch_closure_by_value<NullaryFunction>);
+    const size_t max_blocks = thrust::experimental::arch::max_active_blocks(detail::launch_closure_by_value<NullaryFunction>, block_size, 0);
+    const size_t num_blocks = std::min(max_blocks, ( n + (block_size - 1) ) / block_size);
+
+    detail::launch_closure_by_value<<<num_blocks,block_size,0,stream>>>(f);
+  }
 };
 
 template<typename NullaryFunction>
@@ -96,6 +106,30 @@ template<typename NullaryFunction>
     // free device memory
     thrust::detail::device::cuda::free<0>(f_ptr);
   }
+
+  template<typename Size>
+  static void launch(NullaryFunction f, Size n, cudaStream_t stream)
+  {
+    const size_t block_size = thrust::experimental::arch::max_blocksize_with_highest_occupancy(detail::launch_closure_by_pointer<NullaryFunction>);
+    const size_t max_blocks = thrust::experimental::arch::max_active_blocks(detail::launch_closure_by_pointer<NullaryFunction>, block_size, 0);
+    const size_t num_blocks = std::min(max_blocks, ( n + (block_size - 1) ) / block_size);
+
+    // allocate device memory for the argument
+    thrust::device_ptr<void> temp_ptr = thrust::detail::device::cuda::malloc<0>(sizeof(NullaryFunction));
+
+    // cast to NullaryFunction *
+    thrust::device_ptr<NullaryFunction> f_ptr(reinterpret_cast<NullaryFunction*>(temp_ptr.get()));
+
+    // copy
+    *f_ptr = f;
+
+    // launch
+    detail::launch_closure_by_pointer<<<num_blocks, block_size, 0, stream>>>(f_ptr.get());
+
+    // free device memory
+    thrust::detail::device::cuda::free<0>(f_ptr);
+  }
+
 };
 
 } // end detail
@@ -104,6 +138,12 @@ template<typename NullaryFunction, typename Size>
   void launch_closure(NullaryFunction f, Size n)
 {
   detail::closure_launcher<NullaryFunction>::launch(f, n);
+}
+
+template<typename NullaryFunction, typename Size>
+  void launch_closure(NullaryFunction f, Size n, cudaStream_t stream)
+{
+  detail::closure_launcher<NullaryFunction>::launch(f, n, stream);
 }
 
 } // end cuda

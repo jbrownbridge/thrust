@@ -40,6 +40,21 @@ template<typename InputIterator,
 } // end transform()
 
 
+template<typename InputIterator,
+         typename OutputIterator,
+         typename UnaryFunction>
+  OutputIterator transform(InputIterator first, InputIterator last,
+                           OutputIterator result,
+                           UnaryFunction op,
+                           cudaStream_t stream)
+{
+    // dispatch on space
+    return thrust::detail::dispatch::transform(first, last, result, op, stream,
+            typename thrust::iterator_space<InputIterator>::type(),
+            typename thrust::iterator_space<OutputIterator>::type());
+} // end transform()
+
+
 template<typename InputIterator1,
          typename InputIterator2,
          typename OutputIterator,

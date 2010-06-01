@@ -81,6 +81,52 @@ template<typename InputIterator,
                            OutputIterator result,
                            UnaryFunction op);
 
+/*! This version of \p transform applies a unary function to each element
+ *  of an input sequence and stores the result in the corresponding 
+ *  position in an output sequence.  Specifically, for each iterator 
+ *  <tt>i</tt> in the range [\p first, \p last) the operation 
+ *  <tt>op(*i)</tt> is performed and the result is assigned to <tt>*o</tt>,
+ *  where <tt>o</tt> is the corresponding output iterator in the range
+ *  [\p result, \p result + (\p last - \p first) ).  The input and
+ *  output sequences may coincide, resulting in an in-place transformation.
+ *    
+ *  \param first The beginning of the input sequence.
+ *  \param last The end of the input sequence.
+ *  \param result The beginning of the output sequence.
+ *  \param op The tranformation operation.
+ *  \param stream The cuda stream to use
+ *  \return The end of the output sequence.
+ *
+ *  \tparam InputIterator is a model of <a href="http://www.sgi.com/tech/stl/InputIterator.html">Input Iterator</a>
+ *                        and \c InputIterator's \c value_type is convertible to \c UnaryFunction's \c argument_type.
+ *  \tparam OutputIterator is a model of <a href="http://www.sgi.com/tech/stl/OutputIterator.html">Output Iterator</a>.
+ *  \tparam UnaryFunction is a model of <a href="http://www.sgi.com/tech/stl/UnaryFunction.html">Unary Function</a>
+ *                              and \c UnaryFunction's \c result_type is convertible to \c OutputIterator's \c value_type.
+ *
+ *  The following code snippet demonstrates how to use \p transform
+ *
+ *  \code
+ *  #include <thrust/transform.h>
+ *  #include <thrust/functional.h>
+ *  
+ *  int data[10] = {-5, 0, 2, -3, 2, 4, 0, -1, 2, 8};
+ * 
+ *  thrust::negate<int> op;
+ *
+ *  thrust::transform(data, data + 10, data, op); // in-place transformation
+ *
+ *  // data is now {5, 0, -2, 3, -2, -4, 0, 1, -2, -8};
+ *  \endcode
+ *
+ *  \see http://www.sgi.com/tech/stl/transform.html
+ */
+template<typename InputIterator,
+         typename OutputIterator,
+         typename UnaryFunction>
+  OutputIterator transform(InputIterator first, InputIterator last,
+                           OutputIterator result,
+                           UnaryFunction op, cudaStream_t stream);
+
 
 /*! This version of \p transform applies a binary function to each pair
  *  of elements from two input sequences and stores the result in the

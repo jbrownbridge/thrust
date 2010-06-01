@@ -31,6 +31,9 @@ namespace cuda
 template<typename NullaryFunction, typename Size>
   void launch_closure(NullaryFunction f, Size n);
 
+template<typename NullaryFunction, typename Size>
+  void launch_closure(NullaryFunction f, Size n, cudaStream_t stream);
+
 } // end cuda
   
 } // end device

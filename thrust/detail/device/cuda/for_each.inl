@@ -81,7 +81,8 @@ template<typename InputIterator,
          typename UnaryFunction>
 void for_each(InputIterator first,
               InputIterator last,
-              UnaryFunction f)
+              UnaryFunction f,
+              cudaStream_t stream)
 {
   // we're attempting to launch a kernel, assert we're compiling with nvcc
   // ========================================================================
@@ -102,16 +103,26 @@ void for_each(InputIterator first,
     // n is large, must use 64-bit indices
     typedef for_each_n_closure<InputIterator, difference_type, UnaryFunction> Closure;
     Closure closure(first, last - first, f);
-    launch_closure(closure, last - first);
+    launch_closure(closure, last - first, stream);
   }
   else
   {
     // n is small, 32-bit indices are sufficient
     typedef for_each_n_closure<InputIterator, unsigned int, UnaryFunction> Closure;
     Closure closure(first, static_cast<unsigned int>(n), f);
-    launch_closure(closure, static_cast<unsigned int>(n));
+    launch_closure(closure, static_cast<unsigned int>(n), stream);
   }
 
+} 
+
+
+template<typename InputIterator,
+         typename UnaryFunction>
+void for_each(InputIterator first,
+              InputIterator last,
+              UnaryFunction f)
+{
+	for_each<InputIterator, UnaryFunction>(first, last, f, (cudaStream_t)0);
 } 
 
 

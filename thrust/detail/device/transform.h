@@ -40,6 +40,18 @@ template<typename InputIterator,
     return thrust::detail::device::generic::transform(first, last, result, unary_op);
 }
 
+
+template<typename InputIterator,
+         typename OutputIterator,
+         typename UnaryFunction>
+  OutputIterator transform(InputIterator first, InputIterator last,
+                           OutputIterator result,
+                           UnaryFunction unary_op, cudaStream_t stream)
+{
+    return thrust::detail::device::generic::transform(first, last, result, unary_op, stream);
+}
+
+
 template<typename InputIterator1,
          typename InputIterator2,
          typename OutputIterator,

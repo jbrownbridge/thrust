@@ -55,6 +55,34 @@ void for_each(InputIterator first,
               InputIterator last,
               UnaryFunction f);
 
+/*! \p for_each applies the function object \p f to each element
+ *  in the range <tt>[first, last)</tt>; \p f's return value, if any,
+ *  is ignored. Unlike the C++ Standard Template Library function
+ *  <tt>std::for_each</tt>, this version offers no guarantee on
+ *  order of execution. For this reason, this version of \p for_each
+ *  has no return value.
+ *
+ *  \param first The beginning of the sequence.
+ *  \param last The end of the sequence.
+ *  \param f The function object to apply to the range <tt>[first, last)</tt>.
+ *  \param stream The cuda stream to use.
+ *
+ *  \tparam InputIterator is a model of <a href="http://www.sgi.com/tech/stl/InputIterator">Input Iterator</a>,
+ *          and \p InputIterator's \c value_type is convertible to \p UnaryFunction's \c argument_type.
+ *  \tparam UnaryFunction is a model of <a href="http://www.sgi.com/tech/stl/UnaryFunction">Unary Function</a>,
+ *          and \p UnaryFunction does not apply any non-constant operation through its argument.
+ *
+ *  \see http://www.sgi.com/tech/stl/for_each.html
+ */
+template<typename InputIterator,
+         typename UnaryFunction>
+void for_each(InputIterator first,
+              InputIterator last,
+              UnaryFunction f,
+              cudaStream_t stream);
+
+
+
 /*! \} // end modifying
  */
 

@@ -123,6 +123,17 @@ template<typename InputIterator,
     return thrust::detail::device::transform(first, last, result, unary_op);
 } // end transform() 
 
+template<typename InputIterator,
+         typename OutputIterator,
+         typename UnaryFunction>
+  OutputIterator transform(InputIterator first, InputIterator last,
+                           OutputIterator result,
+                           UnaryFunction unary_op, cudaStream_t stream,
+                           thrust::device_space_tag,
+                           thrust::device_space_tag)
+{
+    return thrust::detail::device::transform(first, last, result, unary_op, stream);
+} // end transform() 
 
 template<typename InputIterator1,
          typename InputIterator2,

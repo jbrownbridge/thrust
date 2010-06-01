@@ -133,6 +133,22 @@ template<typename InputIterator,
   return result + (last - first); // return the end of the output sequence
 } // end transform() 
 
+template<typename InputIterator,
+         typename OutputIterator,
+         typename UnaryFunction>
+  OutputIterator transform(InputIterator first, InputIterator last,
+                           OutputIterator result,
+                           UnaryFunction unary_op, cudaStream_t stream)
+{
+  detail::unary_transform_functor<UnaryFunction> func(unary_op);
+  
+  thrust::detail::device::for_each(thrust::make_zip_iterator(thrust::make_tuple(first, result)),
+                                   thrust::make_zip_iterator(thrust::make_tuple(first, result)) + thrust::distance(first, last),
+                                   func, stream);
+  
+  return result + (last - first); // return the end of the output sequence
+} // end transform() 
+
 
 template<typename InputIterator1,
          typename InputIterator2,

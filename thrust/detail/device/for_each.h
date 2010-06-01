@@ -44,6 +44,19 @@ void for_each(InputIterator first,
       typename thrust::iterator_space<InputIterator>::type());
 }
 
+template<typename InputIterator,
+         typename UnaryFunction>
+void for_each(InputIterator first,
+              InputIterator last,
+              UnaryFunction f,
+              cudaStream_t stream)
+{
+  // dispatch on space
+  thrust::detail::device::dispatch::for_each(first, last, f, stream,
+      typename thrust::iterator_space<InputIterator>::type());
+}
+
+
 } // end namespace device
 
 } // end namespace detail
