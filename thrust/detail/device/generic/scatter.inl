@@ -38,6 +38,7 @@ namespace device
 
 // XXX WAR circluar #inclusion with this forward declaration
 template<typename InputIterator, typename UnaryFunction> void for_each(InputIterator, InputIterator, UnaryFunction);
+template<typename InputIterator, typename UnaryFunction> void for_each(InputIterator, InputIterator, UnaryFunction, cudaStream_t);
 
 namespace generic
 {
@@ -92,7 +93,8 @@ template<typename InputIterator1,
   void scatter(InputIterator1 first,
                InputIterator1 last,
                InputIterator2 map,
-               RandomAccessIterator output)
+               RandomAccessIterator output,
+               cudaStream_t stream)
 {
   // since we're hiding the output inside a functor, its device space will get lost
   // we need to create the zip_iterator with the minimum space of first, map, & output
@@ -112,8 +114,20 @@ template<typename InputIterator1,
   detail::scatter_functor<RandomAccessIterator> func(output);
   thrust::detail::device::for_each(thrust::make_zip_iterator(thrust::make_tuple(first_forced, map)),
                                    thrust::make_zip_iterator(thrust::make_tuple(last_forced,  map + thrust::distance(first, last))),
-                                   func);
+                                   func, stream);
 } // end scatter()
+
+template<typename InputIterator1,
+         typename InputIterator2,
+         typename RandomAccessIterator>
+  void scatter(InputIterator1 first,
+               InputIterator1 last,
+               InputIterator2 map,
+               RandomAccessIterator output)
+{
+    scatter<InputIterator1, InputIterator2, RandomAccessIterator>
+        (first, last, map, output, (cudaStream_t)0);
+}
 
 
 template<typename InputIterator1,
@@ -126,7 +140,8 @@ template<typename InputIterator1,
                   InputIterator2 map,
                   InputIterator3 stencil,
                   RandomAccessIterator output,
-                  Predicate pred)
+                  Predicate pred,
+                  cudaStream_t stream)
 {
   // since we're hiding the output inside a functor, its device space will get lost
   // we need to create the zip_iterator with the minimum space of first, map, & output
@@ -149,9 +164,25 @@ template<typename InputIterator1,
   detail::scatter_if_functor<RandomAccessIterator, Predicate> func(output, pred);
   thrust::detail::device::for_each(thrust::make_zip_iterator(thrust::make_tuple(first_forced, map, stencil)),
                                    thrust::make_zip_iterator(thrust::make_tuple(last_forced,  map + thrust::distance(first, last), stencil + thrust::distance(first, last))),
-                                   func);
+                                   func, stream);
 } // end scatter_if()
 
+template<typename InputIterator1,
+         typename InputIterator2,
+         typename InputIterator3,
+         typename RandomAccessIterator,
+         typename Predicate>
+  void scatter_if(InputIterator1 first,
+                  InputIterator1 last,
+                  InputIterator2 map,
+                  InputIterator3 stencil,
+                  RandomAccessIterator output,
+                  Predicate pred)
+{
+    scatter_if<InputIterator1, InputIterator2, InputIterator3, RandomAccessIterator, Predicate>
+        (first, last, map, stencil, output, pred, (cudaStream_t)0);
+}
+                  
 } // end namespace generic
 } // end namespace device
 } // end namespace detail

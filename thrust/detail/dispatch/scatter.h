@@ -113,6 +113,20 @@ template<typename InputIterator1,
     thrust::detail::device::scatter(first, last, map, output);
 }
 
+template<typename InputIterator1,
+         typename InputIterator2,
+         typename RandomAccessIterator>
+  void scatter(InputIterator1 first,
+               InputIterator1 last,
+               InputIterator2 map,
+               RandomAccessIterator output,
+               cudaStream_t stream,
+               thrust::device_space_tag,
+               thrust::device_space_tag,
+               thrust::device_space_tag)
+{
+    thrust::detail::device::scatter(first, last, map, output, stream);
+}
 
 template<typename InputIterator1,
          typename InputIterator2,
@@ -128,6 +142,20 @@ template<typename InputIterator1,
     thrust::detail::device::scatter(first, last, map, output);
 }
 
+template<typename InputIterator1,
+         typename InputIterator2,
+         typename RandomAccessIterator>
+  void scatter(InputIterator1 first,
+               InputIterator1 last,
+               InputIterator2 map,
+               RandomAccessIterator output,
+               cudaStream_t stream,
+               thrust::any_space_tag,
+               thrust::device_space_tag,
+               thrust::device_space_tag)
+{
+    thrust::detail::device::scatter(first, last, map, output, stream);
+}
 
 template<typename InputIterator1,
          typename InputIterator2,
@@ -148,6 +176,25 @@ template<typename InputIterator1,
     thrust::detail::device::scatter_if(first, last, map, stencil, output, pred);
 }
 
+template<typename InputIterator1,
+         typename InputIterator2,
+         typename InputIterator3,
+         typename RandomAccessIterator,
+         typename Predicate>
+  void scatter_if(InputIterator1 first,
+                  InputIterator1 last,
+                  InputIterator2 map,
+                  InputIterator3 stencil,
+                  RandomAccessIterator output,
+                  Predicate pred,
+                  cudaStream_t stream,
+                  thrust::device_space_tag,
+                  thrust::device_space_tag,
+                  thrust::device_space_tag,
+                  thrust::device_space_tag)
+{
+    thrust::detail::device::scatter_if(first, last, map, stencil, output, pred, stream);
+}
 
 ///////////////////////////////
 // From Device To Host Paths //
@@ -169,6 +216,24 @@ template<typename InputIterator1,
   thrust::scatter(buffer.begin(), buffer.end(), map, output);
 } // end scatter()
 
+template<typename InputIterator1,
+         typename InputIterator2,
+         typename RandomAccessIterator>
+  void scatter(InputIterator1 first,
+               InputIterator1 last,
+               InputIterator2 map,
+               RandomAccessIterator output,
+               cudaStream_t stream,
+               thrust::device_space_tag,  // input on device
+               thrust::host_space_tag,    // map on host
+               thrust::host_space_tag)    // destination on host
+{
+  // copy input to host and scatter on host
+  typedef typename thrust::iterator_traits<InputIterator1>::value_type InputType;
+  thrust::detail::raw_host_buffer<InputType> buffer(first,last);
+  thrust::scatter(buffer.begin(), buffer.end(), map, output, stream);
+} // end scatter()
+
 
 template<typename InputIterator1,
          typename InputIterator2,
@@ -185,6 +250,24 @@ template<typename InputIterator1,
   typedef typename thrust::iterator_traits<InputIterator2>::value_type IndexType;
   thrust::detail::raw_host_buffer<IndexType> h_map(map, map + thrust::distance(first,last));
   thrust::scatter(first, last, h_map.begin(), output);
+} // end scatter()
+
+template<typename InputIterator1,
+         typename InputIterator2,
+         typename RandomAccessIterator>
+  void scatter(InputIterator1 first,
+               InputIterator1 last,
+               InputIterator2 map,
+               RandomAccessIterator output,
+               cudaStream_t stream,
+               thrust::device_space_tag,  // input on device
+               thrust::device_space_tag,  // map on device
+               thrust::host_space_tag)    // destination on host
+{
+  // copy map to host and try again
+  typedef typename thrust::iterator_traits<InputIterator2>::value_type IndexType;
+  thrust::detail::raw_host_buffer<IndexType> h_map(map, map + thrust::distance(first,last));
+  thrust::scatter(first, last, h_map.begin(), output, stream);
 } // end scatter()
 
 
@@ -209,6 +292,25 @@ template<typename InputIterator1,
   thrust::scatter(buffer.begin(), buffer.end(), map, output);
 } // end scatter()
 
+template<typename InputIterator1,
+         typename InputIterator2,
+         typename RandomAccessIterator>
+  void scatter(InputIterator1 first,
+               InputIterator1 last,
+               InputIterator2 map,
+               RandomAccessIterator output,
+               cudaStream_t stream,
+               thrust::host_space_tag,    // input on host
+               thrust::device_space_tag,  // map on device
+               thrust::device_space_tag)  // destination on device
+{
+  // copy input to device and scatter on device
+  typedef typename thrust::iterator_traits<InputIterator1>::value_type InputType;
+  typedef typename thrust::iterator_space<RandomAccessIterator>::type Space;
+  thrust::detail::raw_buffer<InputType,Space> buffer(first, last);
+  thrust::scatter(buffer.begin(), buffer.end(), map, output, stream);
+} // end scatter()
+
 
 template<typename InputIterator1,
          typename InputIterator2,
@@ -226,6 +328,25 @@ template<typename InputIterator1,
   typedef typename thrust::iterator_space<RandomAccessIterator>::type Space;
   thrust::detail::raw_buffer<IndexType,Space> d_map(map, map + thrust::distance(first,last));
   thrust::scatter(first, last, d_map.begin(), output);
+} // end scatter()
+
+template<typename InputIterator1,
+         typename InputIterator2,
+         typename RandomAccessIterator>
+  void scatter(InputIterator1 first,
+               InputIterator1 last,
+               InputIterator2 map,
+               RandomAccessIterator output,
+               cudaStream_t stream,
+               thrust::host_space_tag,    // input on host
+               thrust::host_space_tag,    // map on host
+               thrust::device_space_tag)  // destination on device
+{
+  // copy map to device and try again
+  typedef typename thrust::iterator_traits<InputIterator2>::value_type IndexType;
+  typedef typename thrust::iterator_space<RandomAccessIterator>::type Space;
+  thrust::detail::raw_buffer<IndexType,Space> d_map(map, map + thrust::distance(first,last));
+  thrust::scatter(first, last, d_map.begin(), output, stream);
 } // end scatter()
 
 } // end namespace dispatch

@@ -40,6 +40,15 @@ template<typename InputIterator1,
 
 template<typename InputIterator1,
          typename InputIterator2,
+         typename RandomAccessIterator>
+  void scatter(InputIterator1 first,
+               InputIterator1 last,
+               InputIterator2 map,
+               RandomAccessIterator output,
+               cudaStream_t stream);
+
+template<typename InputIterator1,
+         typename InputIterator2,
          typename InputIterator3,
          typename RandomAccessIterator,
          typename Predicate>
@@ -49,6 +58,19 @@ template<typename InputIterator1,
                   InputIterator3 stencil,
                   RandomAccessIterator output,
                   Predicate pred);
+
+template<typename InputIterator1,
+         typename InputIterator2,
+         typename InputIterator3,
+         typename RandomAccessIterator,
+         typename Predicate>
+  void scatter_if(InputIterator1 first,
+                  InputIterator1 last,
+                  InputIterator2 map,
+                  InputIterator3 stencil,
+                  RandomAccessIterator output,
+                  Predicate pred,
+                  cudaStream_t stream);
 
 } // end namespace generic
 } // end namespace device

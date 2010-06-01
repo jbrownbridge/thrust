@@ -41,6 +41,21 @@ template<typename InputIterator1,
     typename thrust::iterator_space<RandomAccessIterator>::type());
 } // end scatter()
 
+template<typename InputIterator1,
+         typename InputIterator2,
+         typename RandomAccessIterator>
+  void scatter(InputIterator1 first,
+               InputIterator1 last,
+               InputIterator2 map,
+               RandomAccessIterator output,
+               cudaStream_t stream)
+{
+  // dispatch on space
+  thrust::detail::dispatch::scatter(first, last, map, output, stream,
+    typename thrust::iterator_space<InputIterator1>::type(),
+    typename thrust::iterator_space<InputIterator2>::type(),
+    typename thrust::iterator_space<RandomAccessIterator>::type());
+} // end scatter()
 
 template<typename InputIterator1,
          typename InputIterator2,
@@ -77,6 +92,28 @@ template<typename InputIterator1,
     typename thrust::iterator_space<InputIterator3>::type(),
     typename thrust::iterator_space<RandomAccessIterator>::type());
 } // end scatter_if()
+
+template<typename InputIterator1,
+         typename InputIterator2,
+         typename InputIterator3,
+         typename RandomAccessIterator,
+         typename Predicate>
+  void scatter_if(InputIterator1 first,
+                  InputIterator1 last,
+                  InputIterator2 map,
+                  InputIterator3 stencil,
+                  RandomAccessIterator output,
+                  Predicate pred,
+                  cudaStream_t stream)
+{
+  // dispatch on space
+  thrust::detail::dispatch::scatter_if(first, last, map, stencil, output, pred, stream,
+    typename thrust::iterator_space<InputIterator1>::type(),
+    typename thrust::iterator_space<InputIterator2>::type(),
+    typename thrust::iterator_space<InputIterator3>::type(),
+    typename thrust::iterator_space<RandomAccessIterator>::type());
+} // end scatter_if()
+
 
 } // end namespace thrust
 

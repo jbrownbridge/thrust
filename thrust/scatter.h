@@ -77,6 +77,53 @@ template<typename InputIterator1,
                InputIterator2 map,
                RandomAccessIterator output);
 
+/*! \p scatter copies elements from a source range into an output array
+ *  according to a map. For each iterator \c i in the range [\p first, \p last),
+ *  the value \c *i is assigned to <tt>output[*(map + (i - first))]</tt>. The 
+ *  output iterator must permit random access. If the same index 
+ *  appears more than once in the range <tt>[map, map + (last - first))</tt>,
+ *  the result is undefined. Scatter operations between host and 
+ *  device memory spaces are supported (in both directions).
+ *
+ *  \param first Beginning of the sequence of values to scatter.
+ *  \param last End of the sequence of values to scatter.
+ *  \param map  Beginning of the sequence of output indices.
+ *  \param output Destination of the source elements.
+ *  \param stream The cuda stream to use.
+ *
+ *  \tparam InputIterator1 must be a model of <a href="http://www.sgi.com/tech/stl/InputIterator.html">Input Iterator</a> and \c InputIterator1's \c value_type must be convertible to \c RandomAccessIterator's \c value_type.
+ *  \tparam InputIterator2 must be a model of <a href="http://www.sgi.com/tech/stl/InputIterator.html">Input Iterator</a> and \c InputIterator2's \c value_type must be convertible to \c RandomAccessIterator's \c difference_type.
+ *  \tparam RandomAccessIterator must be a model of <a href="http://www.sgi.com/tech/stl/RandomAccessIterator.html">Random Access iterator</a>.
+ *
+ *  The following code snippet demonstrates how to use \p scatter to
+ *  reorder a range.
+ *
+ *  \code
+ *  #include <thrust/scatter.h>
+ *  #include <thrust/device_vector.h>
+ *  ...
+ *  // mark odd indices with a 1; even indices with a 0
+ *  int input[10] = {1, 0, 1, 0, 1, 0, 1, 0, 1, 0};
+ *
+ *  // scatter all odd indices into the first half of the
+ *  // range, and even indices vice versa
+ *  int map[10]   = {0, 5, 1, 6, 2, 7, 3, 8, 4, 9};
+ *
+ *  thrust::device_vector<int> output(10);
+ *  thrust::scatter(input, input + 10,
+ *                   map, output.begin());
+ *  \endcode
+ *
+ *  \note \p scatter is the inverse of thrust::gather.
+ */
+template<typename InputIterator1,
+         typename InputIterator2,
+         typename RandomAccessIterator>
+  void scatter(InputIterator1 first,
+               InputIterator1 last,
+               InputIterator2 map,
+               RandomAccessIterator output,
+               cudaStream_t stream);
 
 /*! \p scatter_if conditionally copies elements from a source range into an 
  *  output array according to a map. For each iterator \c i in the 
@@ -144,6 +191,45 @@ template<typename InputIterator1,
                   InputIterator3 stencil,
                   RandomAccessIterator output,
                   Predicate pred);
+
+
+/*! \p scatter_if conditionally copies elements from a source range into an 
+ *  output array according to a map. For each iterator \c i in the 
+ *  range <tt>[first, last)</tt> such that <tt>pred(*(stencil + (i - first)))</tt> is
+ *  \c true, the value \c *i is assigned to <tt>output[*(map + (i - first))]</tt>.
+ *  The output iterator must permit random access. If the same index 
+ *  appears more than once in the range <tt>[map, map + (last - first))</tt>
+ *  the result is undefined.
+ *
+ *  \param first Beginning of the sequence of values to scatter.
+ *  \param last End of the sequence of values to scatter.
+ *  \param map Beginning of the sequence of output indices.
+ *  \param stencil Beginning of the sequence of predicate values.
+ *  \param output Beginning of the destination range.
+ *  \param pred Predicate to apply to the stencil values.
+ *  \param stream The cuda stream to use.
+ *
+ *  \tparam InputIterator1 must be a model of <a href="http://www.sgi.com/tech/stl/InputIterator.html">Input Iterator</a> and \c InputIterator1's \c value_type must be convertible to \c RandomAccessIterator's \c value_type.
+ *  \tparam InputIterator2 must be a model of <a href="http://www.sgi.com/tech/stl/InputIterator.html">Input Iterator</a> and \c InputIterator2's \c value_type must be convertible to \c RandomAccessIterator's \c difference_type.
+ *  \tparam InputIterator3 must be a model of <a href="http://www.sgi.com/tech/stl/InputIterator.html">Input Iterator</a> and \c InputIterator3's \c value_type must be convertible to \c Predicate's \c argument_type.
+ *  \tparam RandomAccessIterator must be a model of <a href="http://www.sgi.com/tech/stl/RandomAccessIterator.html">Random Access iterator</a>.
+ *  \tparam Predicate must be a model of <a href="http://www.sgi.com/tech/stl/Predicate.html">Predicate</a>.
+ *  
+ *  \note \p scatter_if is the inverse of thrust::gather_if.
+ */
+template<typename InputIterator1,
+         typename InputIterator2,
+         typename InputIterator3,
+         typename RandomAccessIterator,
+         typename Predicate>
+  void scatter_if(InputIterator1 first,
+                  InputIterator1 last,
+                  InputIterator2 map,
+                  InputIterator3 stencil,
+                  RandomAccessIterator output,
+                  Predicate pred,
+                  cudaStream_t stream);
+
 
 /*! \} // end scattering
  */
