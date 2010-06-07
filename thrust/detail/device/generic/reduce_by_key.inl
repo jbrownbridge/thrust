@@ -127,15 +127,13 @@ template <typename InputIterator1,
 
 template <typename InputIterator1,
           typename InputIterator2,
-          typename OutputIterator1,
           typename OutputIterator2,
           typename BinaryPredicate,
           typename BinaryFunction>
-  thrust::pair<OutputIterator1,OutputIterator2>
+  OutputIterator2
   reduce_by_key(InputIterator1 keys_first, 
                      InputIterator1 keys_last,
                      InputIterator2 values_first,
-                     OutputIterator1 keys_output,
                      OutputIterator2 values_output,
                      BinaryPredicate binary_pred,
                      BinaryFunction binary_op,
@@ -144,11 +142,14 @@ template <typename InputIterator1,
     typedef typename thrust::iterator_traits<InputIterator1>::difference_type difference_type;
     typedef typename thrust::iterator_traits<InputIterator1>::value_type  KeyType;
     typedef typename thrust::iterator_traits<OutputIterator2>::value_type ValueType;
-    typedef typename thrust::iterator_space<OutputIterator1>::type Space;
+    typedef typename thrust::iterator_space<OutputIterator2/*1*/>::type Space;
     typedef unsigned int FlagType;  // TODO use difference_type
 
+//    if (keys_first == keys_last)
+//        return thrust::make_pair(keys_output, values_output);
     if (keys_first == keys_last)
-        return thrust::make_pair(keys_output, values_output);
+        return values_output;
+
 
     // input size
     difference_type n = keys_last - keys_first;
@@ -181,10 +182,11 @@ template <typename InputIterator1,
     FlagType N = scanned_tail_flags[n - 1] + 1;
     
     // scatter the keys and accumulated values    
-    thrust::scatter_if(keys_first,            keys_last,             scanned_tail_flags.begin(), head_flags.begin(), keys_output, thrust::identity<FlagType>(), stream);
+//    thrust::scatter_if(keys_first,            keys_last,             scanned_tail_flags.begin(), head_flags.begin(), keys_output, thrust::identity<FlagType>(), stream);
     thrust::scatter_if(scanned_values.begin(), scanned_values.end(), scanned_tail_flags.begin(), tail_flags.begin(), values_output, thrust::identity<FlagType>(), stream);
 
-    return thrust::make_pair(keys_output + N, values_output + N); 
+//    return thrust::make_pair(keys_output + N, values_output + N);
+    return values_output + N; 
 }
 
 } // end namespace generic

@@ -382,7 +382,6 @@ template <typename InputIterator1,
  *  \param keys_first The beginning of the input key range.
  *  \param keys_last  The end of the input key range.
  *  \param values_first The beginning of the input value range.
- *  \param keys_output The beginning of the output key range.
  *  \param values_output The beginning of the output value range.
  *  \param binary_pred  The binary predicate used to determine equality.
  *  \param binary_op The binary function used to accumulate values.
@@ -391,8 +390,6 @@ template <typename InputIterator1,
  *
  *  \tparam InputIterator1 is a model of <a href="http://www.sgi.com/tech/stl/InputIterator.html">Input Iterator</a>,
  *  \tparam InputIterator2 is a model of <a href="http://www.sgi.com/tech/stl/InputIterator.html">Input Iterator</a>,
- *  \tparam OutputIterator1 is a model of <a href="http://www.sgi.com/tech/stl/OutputIterator.html">Output Iterator</a> and
- *          and \p InputIterator1's \c value_type is convertible to \c OutputIterator1's \c value_type.
  *  \tparam OutputIterator2 is a model of <a href="http://www.sgi.com/tech/stl/OutputIterator.html">Output Iterator</a> and
  *          and \p InputIterator2's \c value_type is convertible to \c OutputIterator2's \c value_type.
  *  \tparam BinaryPredicate is a model of <a href="http://www.sgi.com/tech/stl/BinaryPredicate.html">Binary Predicate</a>.
@@ -427,15 +424,13 @@ template <typename InputIterator1,
  */
 template <typename InputIterator1,
           typename InputIterator2,
-          typename OutputIterator1,
           typename OutputIterator2,
           typename BinaryPredicate,
           typename BinaryFunction>
-  thrust::pair<OutputIterator1,OutputIterator2>
+  OutputIterator2
   reduce_by_key(InputIterator1 keys_first, 
                 InputIterator1 keys_last,
                 InputIterator2 values_first,
-                OutputIterator1 keys_output,
                 OutputIterator2 values_output,
                 BinaryPredicate binary_pred,
                 BinaryFunction binary_op,
